@@ -1,0 +1,75 @@
+//  The purpose of this is to have a proposed appraches for the repo namming conventions 
+//  Actually I don't think any of these approahces is complete. in terms of ready for implementation
+//  Please don't hesistate to share any approach you have in mind
+
+class TransactionRepo {
+
+// first appraoch --------------------
+  getTransactionDetails (entityId, orderIds) {
+			return TransactionModel.query()
+						.joinRelated('receipt')
+						.skipUndefined()
+						.distinct('orderId')
+						.where('receipt.entityId', entityId)
+						.whereIn('orderId', orderIds)
+  }
+// --------------------
+// Second appraoch --------------------
+	getTransaction () {
+			return TransactionModel.query()
+	}
+
+	getTransactionsFiltered({id, state, orderId}){
+			return this.getTransactions()
+				.skipUndefined()
+				.where({id, state})
+				.whereIn({orderId})
+	}
+
+	getTransactionsWithReceipt ({id, state, orderId}) {
+			return this.getTransactionsFiltered({id, state, orderId})
+					.joinRelated('receipt')
+	}
+
+	getTransactionsDetails ({id, orderId, productIds}) {
+			return this.getTransactionsWithReceipt({id, orderId})
+					.distinct('productId')
+					.whereIn('productId', productIds)
+	}
+// --------------------
+// Third appraoch --------------------
+	getTransactions () {
+			return ReceiptItemModel.query()
+	}
+
+	joinReceipt () {
+			this.joinRelated('receipt')
+			return this
+	}
+
+	filter ({id, state, orderId}){
+			this.skipUndefined()
+				.where({id, state})
+				.whereIn({orderId})
+			return this
+	}
+
+	distinct (column){
+			this.distinct(column)
+			return this
+	}
+   
+	filterReceipt ({entityId}){
+			this.skipUndefined()
+				.where('receipt.entityId', entityId)
+			return this
+	}
+
+	service(){
+		this.getTransactions().filter({orderId}).distinct("orderId").joinReceipt().filterReceipt({entityId})
+	}
+
+}
+// --------------------
+module.exports = new TransactionRepo() 
+	
