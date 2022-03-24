@@ -4,65 +4,65 @@
 
 class TransactionRepo {
 
-// first appraoch --------------------
+// first approach --------------------
   getTransactionDetails (entityId, orderIds) {
-			return TransactionModel.query()
-						.joinRelated('receipt')
-						.skipUndefined()
-						.distinct('orderId')
-						.where('receipt.entityId', entityId)
-						.whereIn('orderId', orderIds)
+	return TransactionModel.query()
+		.joinRelated('receipt')
+		.skipUndefined()
+		.distinct('orderId')
+		.where('receipt.entityId', entityId)
+		.whereIn('orderId', orderIds)
   }
 // --------------------
-// Second appraoch --------------------
+// Second approach --------------------
 	getTransaction () {
-			return TransactionModel.query()
+		return TransactionModel.query()
 	}
 
 	getTransactionsFiltered({id, state, orderId}){
-			return this.getTransactions()
-				.skipUndefined()
-				.where({id, state})
-				.whereIn({orderId})
+		return this.getTransactions()
+			.skipUndefined()
+			.where({id, state})
+			.whereIn({orderId})
 	}
 
 	getTransactionsWithReceipt ({id, state, orderId}) {
-			return this.getTransactionsFiltered({id, state, orderId})
-					.joinRelated('receipt')
+		return this.getTransactionsFiltered({id, state, orderId})
+				.joinRelated('receipt')
 	}
 
 	getTransactionsDetails ({id, orderId, productIds}) {
-			return this.getTransactionsWithReceipt({id, orderId})
-					.distinct('productId')
-					.whereIn('productId', productIds)
+		return this.getTransactionsWithReceipt({id, orderId})
+				.distinct('productId')
+				.whereIn('productId', productIds)
 	}
 // --------------------
-// Third appraoch --------------------
+// Third approach --------------------
 	getTransactions () {
-			return ReceiptItemModel.query()
+		return ReceiptItemModel.query()
 	}
 
 	joinReceipt () {
-			this.joinRelated('receipt')
-			return this
+		this.joinRelated('receipt')
+		return this
 	}
 
 	filter ({id, state, orderId}){
-			this.skipUndefined()
-				.where({id, state})
-				.whereIn({orderId})
-			return this
+		this.skipUndefined()
+			.where({id, state})
+			.whereIn({orderId})
+		return this
 	}
 
 	distinct (column){
-			this.distinct(column)
-			return this
+		this.distinct(column)
+		return this
 	}
    
 	filterReceipt ({entityId}){
-			this.skipUndefined()
-				.where('receipt.entityId', entityId)
-			return this
+		this.skipUndefined()
+			.where('receipt.entityId', entityId)
+		return this
 	}
 
 	service(){
